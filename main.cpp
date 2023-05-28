@@ -32,7 +32,7 @@ vector<Password> readPasswords(const string& key,const string& filepath) {
 void writePasswords(const vector<Password>& passwords, const string& key,const string& filepath){
     char name[1000];
     strcpy(name, filepath.c_str());
-    ofstream tempFile("temp.txt", std::ios_base::app); // Create a temporary output file
+    ofstream tempFile("temp.txt", ios_base::app); // Create a temporary output file
     vector<Password> ps = passwords;
     for (Password& password: ps) {
         password.encodePassword(key);
@@ -45,7 +45,7 @@ void writePasswords(const vector<Password>& passwords, const string& key,const s
 
 void writePassword(Password password, const string& key,const string& filepath) {
     password.encodePassword(key);
-    ofstream file(filepath,std::ios_base::app);
+    ofstream file(filepath,ios_base::app);
     file << password << endl;
     file.close();
 }
@@ -79,17 +79,17 @@ vector<Password> searchFunc(const string& parameter,const vector<Password>& pass
 vector<Password> sortPasswords(const string& parameter,const vector<Password>& passwords) {
     vector<Password> sortedPasswords = passwords;
     if(parameter=="name") {
-        std::sort(sortedPasswords.begin(), sortedPasswords.end(),
+        sort(sortedPasswords.begin(), sortedPasswords.end(),
                   [](Password& password1, Password& password2){
             return password1.getName()<password2.getName();
         });
     } else if (parameter=="cat"){
-        std::sort(sortedPasswords.begin(), sortedPasswords.end(),
+        sort(sortedPasswords.begin(), sortedPasswords.end(),
                   [](Password& password1, Password& password2){
             return password1.getCategory()<password2.getCategory();
         });
     } else if(parameter=="namecat") {
-        std::sort(sortedPasswords.begin(), sortedPasswords.end(),
+        sort(sortedPasswords.begin(), sortedPasswords.end(),
                   [](Password& password1,Password& password2) {
                       if (password1.getName() == password2.getName()) {
                           return password1.getCategory() < password2.getCategory();
@@ -150,7 +150,7 @@ vector<string> readCategories () {
 void writeCategories(const vector<string>& categories) {
     char name[1000];
     strcpy(name, "Categories.txt");
-    ofstream tempFile("temp.txt", std::ios_base::app); // Create a temporary output file
+    ofstream tempFile("temp.txt", ios_base::app); // Create a temporary output file
     for (const string& category: categories) {
         tempFile << category << " ";
     }
@@ -169,18 +169,17 @@ void deleteCategory(vector<string> *categories, const string& name, vector<Passw
     }
 }
 
-std::string generateUUIDv4() {
+string generateUUIDv4() {
     // Generate random bytes
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint8_t> dis(0, 255);
-    std::stringstream ss;
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<uint8_t> dis(0, 255);
+    stringstream ss;
     for (int i = 0; i < 16; ++i) {
-        ss << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(dis(gen));
+        ss << setw(2) << setfill('0') << hex << static_cast<int>(dis(gen));
     }
-
     // Format the random bytes as a UUID v4 string
-    std::string uuid = ss.str();
+    string uuid = ss.str();
     uuid.insert(8, "-");
     uuid.insert(13, "-");
     uuid.insert(18, "-");
@@ -291,16 +290,19 @@ int main() {
                         }
                         analyzePassword(passwords, password);
                         char dec = '-';
+                        string msg = "Want to proceed[p] or change password[c], generate random[g]?:\n";
+                        cout << msg;
+                        cin >> dec;
                         while (dec!='p') {
                             if(dec=='g') {
-
+                                password = generateUUIDv4();
+                                cout << "Your generated password is: " << password << endl;
                             } else {
                                 cout << "Enter another password:\n";
                                 cin >> password;
                                 analyzePassword(passwords, password);
                             }
-
-                            cout << "Want to proceed[p] or change password[c], generate random[g]?:\n";
+                            cout << msg;
                             cin >> dec;
                         }
                         Password p = Password(name,password,category,website);
