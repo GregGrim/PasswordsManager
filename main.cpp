@@ -10,7 +10,12 @@
 
 using namespace std;
 
-// function reads passwords from file and returns them
+/**
+ * function reads passwords from file using specific key to decrypt
+ * @param key
+ * @param filepath
+ * @return vector of Passwords
+ */
 vector<Password> readPasswords(const string& key,const string& filepath) {
     Timestamp time = Timestamp();
     time.writeTimestamp(filepath);
@@ -29,6 +34,12 @@ vector<Password> readPasswords(const string& key,const string& filepath) {
     file.close();
     return passwords;
 }
+/**
+ * function rewrites file with passwords using key to encrypt
+ * @param passwords
+ * @param key
+ * @param filepath
+ */
 void writePasswords(const vector<Password>& passwords, const string& key,const string& filepath){
     char name[1000];
     strcpy(name, filepath.c_str());
@@ -42,29 +53,37 @@ void writePasswords(const vector<Password>& passwords, const string& key,const s
     remove(name);
     rename("temp.txt", name);
 }
-
-void writePassword(Password password, const string& key,const string& filepath) {
-    password.encodePassword(key);
-    ofstream file(filepath,ios_base::app);
-    file << password << endl;
-    file.close();
-}
+/**
+ * function checks if the provided key is valid for this file
+ * @param key
+ * @param filepath
+ * @return bool
+ */
 bool checkKey(const string& key,const string& filepath) {
     vector<Password> existingPasswords = readPasswords(key,filepath);
-    //int x = existingPasswords.size();
-    //cout <<"size="<< x << endl;
     bool flag = false;
     for (Password pas: existingPasswords) {
         if(pas.isEncrypted()) flag=true;
     }
     return !flag;
 }
+/**
+ * function checks if the provided file exists
+ * @param filepath
+ * @return bool
+ */
 bool checkFile(const string& filepath) {
     fstream file (filepath);
     if (!file) {
         return false;
     } else return true;
 }
+/**
+ * function searches for all Passwords which match given string
+ * @param parameter
+ * @param passwords
+ * @return vector of matched Passwords
+ */
 vector<Password> searchFunc(const string& parameter,const vector<Password>& passwords) {
     vector<Password> filteredPasswords;
     copy_if(passwords.begin(), passwords.end(), back_inserter(filteredPasswords),
@@ -76,6 +95,12 @@ vector<Password> searchFunc(const string& parameter,const vector<Password>& pass
             });
     return filteredPasswords;
 }
+/**
+ * function sorts all Passwords according to provided parameter (can sort by name, category or name and category)
+ * @param parameter
+ * @param passwords
+ * @return vector of sorted Passwords
+ */
 vector<Password> sortPasswords(const string& parameter,const vector<Password>& passwords) {
     vector<Password> sortedPasswords = passwords;
     if(parameter=="name") {
@@ -99,6 +124,13 @@ vector<Password> sortPasswords(const string& parameter,const vector<Password>& p
     } else cout << "Parameter is invalid.\n";
     return sortedPasswords;
 }
+/**
+ * function edits field of given Password according to given field and new word for it
+ * @param name
+ * @param field field to change
+ * @param newWord word to put
+ * @param passwords
+ */
 void editPassword(const string& name,const string& field, const string& newWord,vector<Password>& passwords) {
     bool flag = false;
     for (Password& p: passwords) {
@@ -118,11 +150,21 @@ void editPassword(const string& name,const string& field, const string& newWord,
     }
     if(!flag) cerr << "No such password name!\n";
 }
+/**
+ * function deletes given Password from list of all passwords
+ * @param passwords
+ * @param name
+ */
 void deletePassword(vector<Password> *passwords, const string& name) {
     erase_if(*passwords, [&name](Password& pas) {
         return pas.getName() == name;
     });
 }
+/**
+ * function analyzes if the given Password is strong or has been used before
+ * @param passwords
+ * @param passwordText
+ */
 void analyzePassword(vector<Password>& passwords,string& passwordText) {
     for (Password& password: passwords) {
        if(password.getPasswordText()==passwordText) cout<<"Password has been used before!\n";
@@ -135,6 +177,10 @@ void analyzePassword(vector<Password>& passwords,string& passwordText) {
         } else cout << "Password is weak\n";
     } else cout << "Password is weak\n";
 }
+/**
+ * function reads categories from file
+ * @return vector of strings representing categories
+ */
 vector<string> readCategories () {
     vector<string> categories;
     ifstream file;
@@ -147,6 +193,10 @@ vector<string> readCategories () {
     file.close();
     return categories;
 }
+/**
+ * function writes categories to the file
+ * @param categories
+ */
 void writeCategories(const vector<string>& categories) {
     char name[1000];
     strcpy(name, "Categories.txt");
@@ -158,6 +208,12 @@ void writeCategories(const vector<string>& categories) {
     remove(name);
     rename("temp.txt", name);
 }
+/**
+ * function deletes given Category from list of all categories
+ * @param categories
+ * @param name
+ * @param passwords
+ */
 void deleteCategory(vector<string> *categories, const string& name, vector<Password>& passwords) {
     erase_if(*categories, [&name](string& category) {
         return category == name;
@@ -168,7 +224,10 @@ void deleteCategory(vector<string> *categories, const string& name, vector<Passw
         }
     }
 }
-
+/**
+ * function creates random string in uuid4 format
+ * @return random string in uuid4 format
+ */
 string generateUUIDv4() {
     // Generate random bytes
     random_device rd;
@@ -192,21 +251,12 @@ string generateUUIDv4() {
     return uuid;
 }
 
-
+/**
+ * main method with CLI implemented with intuitive navigation commands
+ * @return
+ */
 int main() {
-//    Password p1 = Password("newpasswor", "newpas", "bank", "www");
-//    Password p2 = Password("newpassword", "grishacoder", "bank", "www");
-//    string path = "Passwords.txt";
-//    string key = "my_key";
-//    string key2 = "key2";
-//    writePassword(p2,key,path);
-//    //cout << Timestamp::readTimestamp(path) << endl;
-//    vector<Password> passwords = readPasswords(key,path);
-//    for (Password pas: passwords) {
-//        cout <= pas;
-//    }
-//    passwords.push_back(p1);
-//    writePasswords(passwords,key,path);
+//    cout << Timestamp::readTimestamp(path) << endl; //command to read last timestamp
     string filepath;
     cout << "Welcome to password Manager!\nWrite a name of file or path to file with passwords:\n";
     cin >> filepath;

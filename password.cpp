@@ -4,11 +4,12 @@
 
 #include "password.h"
 #include <iostream>
+#include <utility>
 Password:: Password(string name, string passwordText, string category, string website) {
-        this->name = name;
+        this->name = std::move(name);
         this->passwordText = passwordText;
-        this->category = category;
-        this->website = website;
+        this->category = std::move(category);
+        this->website = std::move(website);
         for (char i : passwordText) {
             check ^= i;
         }
@@ -106,16 +107,16 @@ string Password::getWebsite() {
     return website;
 }
 void Password::setName(string newName) {
-     name=newName;
+     name=std::move(newName);
 }
 void Password::setPasswordText(string newPasswordText) {
-     passwordText = newPasswordText;
+     passwordText = std::move(newPasswordText);
 }
 void Password::setCategory(string newCategory) {
-     category = newCategory;
+     category = std::move(newCategory);
 }
 void Password::setWebsite(string newWebsite) {
-     website = newWebsite;
+     website = std::move(newWebsite);
 }
 void Password::setCheck(const string& newWord) {
     check = 0;

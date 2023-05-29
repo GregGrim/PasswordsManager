@@ -5,7 +5,9 @@
 #ifndef PASSWORDMANAGERPROJECT_PASSWORD_H
 #define PASSWORDMANAGERPROJECT_PASSWORD_H
 using namespace std;
-
+/**
+ * Class that contains all info associated with specific password
+ */
 
 class Password {
 private:
@@ -16,12 +18,37 @@ private:
     char check = 0;
 public: Password(string name, string passwordText, string category, string website);
     Password();
+    /**
+     * checks if the password was decrypted successfully
+     * @return bool
+     */
     bool isEncrypted();
-    static string encodeString(string s,const string& key);
+    /**
+     * encrypts the password fields using specific key
+     * @param key
+     */
     void encodePassword(const string& key);
-    friend ostream& operator<=(ostream& os, Password arg); // operator to show info about password
-    friend ostream& operator<<(ostream& os, Password const& arg); // operator to write password to file
-    friend istream& operator>>(istream& is, Password &arg); // operator to read password from file
+    /**
+     * operator to show info about password(fields)
+     * @param os
+     * @param arg
+     * @return ostream
+     */
+    friend ostream& operator<=(ostream& os, Password arg);
+    /**
+     * operator to write password to file
+     * @param os
+     * @param arg
+     * @return ostream
+     */
+    friend ostream& operator<<(ostream& os, Password const& arg);
+    /**
+     * operator to read password from file
+     * @param is
+     * @param arg
+     * @return istream
+     */
+    friend istream& operator>>(istream& is, Password &arg);
     string getName();
     string getPasswordText();
     string getCategory();
@@ -36,8 +63,6 @@ public: Password(string name, string passwordText, string category, string websi
     void setPasswordText(string newPasswordText);
 
     void setCheck(const string& newWord);
-
-    char getCheck();
 };
 
 
