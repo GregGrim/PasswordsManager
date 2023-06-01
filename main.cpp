@@ -4,7 +4,6 @@
 #include <cstring>
 #include <regex>
 #include <random>
-#include <iomanip>
 #include "password.h"
 #include "timestamp.h"
 
@@ -17,11 +16,7 @@ using namespace std;
  * @return vector of Passwords
  */
 vector<Password> readPasswords(const string& key,const string& filepath) {
-    Timestamp time = Timestamp();
-    time.writeTimestamp(filepath);
-
     ifstream file(filepath);
-
     vector<Password> passwords = vector<Password>();
     Password p;
     while (!file.eof()) {
@@ -61,6 +56,8 @@ void writePasswords(const vector<Password>& passwords, const string& key,const s
  */
 bool checkKey(const string& key,const string& filepath) {
     vector<Password> existingPasswords = readPasswords(key,filepath);
+    Timestamp time = Timestamp();
+    time.writeTimestamp(filepath);
     bool flag = false;
     for (Password pas: existingPasswords) {
         if(pas.isEncrypted()) flag=true;
@@ -225,30 +222,26 @@ void deleteCategory(vector<string> *categories, const string& name, vector<Passw
     }
 }
 /**
- * function creates random string in uuid4 format
- * @return random string in uuid4 format
+ * function creates random string
+ * @return random string
  */
-string generateUUIDv4() {
-    // Generate random bytes
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<uint8_t> dis(0, 255);
-    stringstream ss;
-    for (int i = 0; i < 16; ++i) {
-        ss << setw(2) << setfill('0') << hex << static_cast<int>(dis(gen));
+string generatePassword(const int& num,const char& up_char,const char& spec_char) {
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(0, 1000000);
+    string gen_pass;
+    int length;
+    const char symbols[] = "!@#$%^&*0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if(num>7) length = num;
+    else length = (int)dist(mt) % 5 + 8;
+
+    for(int i = 0; i<length;i++) {
+        if(up_char=='y' && spec_char=='y') gen_pass += symbols[(int)dist(mt) % (sizeof symbols - 1)];
+        if(up_char=='y' && spec_char=='n') gen_pass += symbols[(int)dist(mt) % (sizeof symbols - 9) + 8];
+        if(up_char=='n' && spec_char=='y') gen_pass += symbols[(int)dist(mt) % (sizeof symbols - 27)];
+        if(up_char=='n' && spec_char=='n') gen_pass += symbols[(int)dist(mt) % (sizeof symbols - 36) + 8];
     }
-    // Format the random bytes as a UUID v4 string
-    string uuid = ss.str();
-    uuid.insert(8, "-");
-    uuid.insert(13, "-");
-    uuid.insert(18, "-");
-    uuid.insert(23, "-");
-
-    // Set the version and variant bits for UUID v4
-    uuid[14] = '4';  // Set the version bits (bits 12-15) to "0100"
-    uuid[19] = (uuid[19] & 0x0F) | 0x40;  // Set the variant bits (bits 16-17) to "10"
-
-    return uuid;
+    return gen_pass;
 }
 
 /**
@@ -256,13 +249,13 @@ string generateUUIDv4() {
  * @return
  */
 int main() {
-//    cout << Timestamp::readTimestamp(path) << endl; //command to read last timestamp
     string filepath;
     cout << "Welcome to password Manager!\nWrite a name of file or path to file with passwords:\n";
     cin >> filepath;
     if(!checkFile(filepath)){
         cerr << "Error opening file.\n";
     } else {
+        cout << "Last modification was at : "<< Timestamp::readTimestamp(filepath) << endl; //command to read last timestamp
         cout << "Type key to access file:\n";
         string your_key;
         cin >> your_key;
@@ -304,6 +297,7 @@ int main() {
                     string field;
                     cin >> field >> newWord;
                     editPassword(name, field, newWord, passwords);
+                    cout << "Password edited.\n";
                 } else if(command=="delete") { // done
                     cout<<"What do you want to delete?(password or category):\n";
                     cin>>command;
@@ -340,12 +334,21 @@ int main() {
                         }
                         analyzePassword(passwords, password);
                         char dec = '-';
-                        string msg = "Want to proceed[p] or change password[c], generate random[g]?:\n";
+                        string msg = "Want to proceed[p], change password[c] or generate random[g]?:\n";
                         cout << msg;
                         cin >> dec;
                         while (dec!='p') {
                             if(dec=='g') {
-                                password = generateUUIDv4();
+                                int num = 0;
+                                char up_char = 'y';
+                                char spec_char = 'y';
+                                cout << "How many characters you want in it(min 8)?\n";
+                                cin >> num;
+                                cout << "Include uppercase chars[y] yes, [n] no?\n";
+                                cin >> up_char;
+                                cout << "Include special chars[y] yes, [n] no?\n";
+                                cin >> spec_char;
+                                password = generatePassword(num,up_char,spec_char);
                                 cout << "Your generated password is: " << password << endl;
                             } else {
                                 cout << "Enter another password:\n";
@@ -378,6 +381,7 @@ int main() {
                 cout << "Type your new command([quit] to end working with file):\n";
                 cin >> command;
             }
+            cout << "Dont forget your key is: " << your_key << endl;
         }
     }
 }

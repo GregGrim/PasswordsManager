@@ -69,7 +69,7 @@ void Timestamp::writeTimestamp(const string& filepath) const{
 
 
 }
-string Timestamp::readTimestamp(const string& filepath){
+string Timestamp::readTimestamp(const string& filepath) {
     ifstream inputFile(filepath);
     int n = 0;
     if (inputFile.is_open()) {
@@ -81,7 +81,6 @@ string Timestamp::readTimestamp(const string& filepath){
            // cout << hex<<((line[i]&0xF0)>>4)<<(line[i] & 0xF) <<" ";
             n |= ((line[i] >> 6) & 3) << (i*2);
         }
-        cout << endl;
         inputFile.close();
     } else {
         cout << "Failed to open the input or temporary file." << std::endl;
